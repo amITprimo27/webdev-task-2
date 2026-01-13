@@ -85,7 +85,19 @@ describe("Comment API Tests", () => {
     const response = await request(app).get("/comment");
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(testComments.length);
-    expect(response.body).toEqual(expect.arrayContaining(testComments));
+
+    // Ensure each expected comment appears in the response with matching fields
+    expect(response.body).toEqual(
+      expect.arrayContaining(
+        testComments.map((comment) =>
+          expect.objectContaining({
+            content: comment.content,
+            postId: comment.postId.toString(),
+            sender: comment.sender.toString(),
+          })
+        )
+      )
+    );
   });
 
   test("get comments by postId (existing)", async () => {
@@ -99,7 +111,18 @@ describe("Comment API Tests", () => {
     );
 
     expect(response.body.length).toBe(expectedComments.length);
-    expect(response.body).toEqual(expect.arrayContaining(expectedComments));
+
+    expect(response.body).toEqual(
+      expect.arrayContaining(
+        expectedComments.map((comment) =>
+          expect.objectContaining({
+            content: comment.content,
+            postId: comment.postId.toString(),
+            sender: comment.sender.toString(),
+          })
+        )
+      )
+    );
   });
 
   test("get comments by postId (non-existing)", async () => {

@@ -19,7 +19,7 @@ const postsData: (Post & { _id?: mongoose.Types.ObjectId })[] = [
     sender: new mongoose.Types.ObjectId(),
   },
   {
-    content: "my second post!",
+    content: "my third post!",
     sender: new mongoose.Types.ObjectId(),
   },
 ];

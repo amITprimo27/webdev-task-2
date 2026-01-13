@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import specs from "./swagger";
-import postsRoutes from "./routes/postRoutes"
+import postsRoutes from "./routes/postRoutes";
 import commentRoutes from "./routes/commentRouts";
 dotenv.config({ path: "/env/.env.dev" });
 
@@ -13,7 +13,13 @@ const intApp = () => {
     app.use(express.urlencoded({ extended: false }));
     app.use(express.json());
 
-    // TODO: Swagger
+    // Swagger UI
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+    // Swagger JSON endpoint
+    app.get("/api-docs.json", (req, res) => {
+      res.setHeader("Content-Type", "application/json");
+      res.send(specs);
+    });
 
     // Routes
     app.use("/post", postsRoutes);

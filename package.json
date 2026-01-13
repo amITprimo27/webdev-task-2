@@ -11,6 +11,7 @@
     "dev": "nodemon ./src/server.ts",
     "lint": "eslint . --ext .ts",
     "test": "tsc && jest --runInBand --detectOpenHandles --forceExit",
+    "test:post": "tsc && jest --runInBand --detectOpenHandles --forceExit src/tests/post.test.ts"
     "test:comment": "tsc && jest --runInBand --detectOpenHandles --forceExit src/tests/comment.test.ts"
   },
   "dependencies": {

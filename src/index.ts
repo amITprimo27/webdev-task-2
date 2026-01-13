@@ -2,6 +2,9 @@ import express, { Express } from "express";
 const app = express();
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import specs from "./swagger";
+import postsRoutes from "./routes/postRoutes"
 import commentRoutes from "./routes/commentRouts";
 dotenv.config({ path: "/env/.env.dev" });
 
@@ -10,9 +13,10 @@ const intApp = () => {
     app.use(express.urlencoded({ extended: false }));
     app.use(express.json());
 
-    //TODO: Swagger
+    // TODO: Swagger
 
-    //TODO: Routes
+    // Routes
+    app.use("/post", postsRoutes);
     app.use("/comment", commentRoutes);
     const dbUri = process.env.MONGODB_URI;
     if (!dbUri) {

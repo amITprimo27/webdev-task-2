@@ -56,7 +56,11 @@ class BaseController<T> {
     const id = req.params.id;
     try {
       const response = await this.model.findByIdAndDelete(id);
-      res.send(response);
+      if (!response) {
+        return res.status(404).json({ error: "Data not found" });
+      } else {
+        res.json(response);
+      }
     } catch (error) {
       res.status(500).json({
         error:
@@ -72,7 +76,11 @@ class BaseController<T> {
       const response = await this.model.findByIdAndUpdate(id, obj, {
         new: true,
       });
-      res.json(response);
+      if (!response) {
+        return res.status(404).json({ error: "Data not found" });
+      } else {
+        res.json(response);
+      }
     } catch (error) {
       res.status(500).json({
         error:

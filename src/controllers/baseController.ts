@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
-class BaseController {
-  constructor(protected model: mongoose.Model<unknown>) {}
+class BaseController<T> {
+  constructor(protected model: mongoose.Model<T>) {}
 
   async get(req: Request, res: Response) {
     const filter = req.query;

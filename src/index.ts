@@ -2,6 +2,7 @@ import express, { Express } from "express";
 const app = express();
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import commentRoutes from "./routes/commentRouts";
 dotenv.config({ path: "/env/.env.dev" });
 
 const intApp = () => {
@@ -12,7 +13,7 @@ const intApp = () => {
     //TODO: Swagger
 
     //TODO: Routes
-
+    app.use("/comment", commentRoutes);
     const dbUri = process.env.MONGODB_URI;
     if (!dbUri) {
       console.error("MONGODB_URI is not defined in the environment variables.");

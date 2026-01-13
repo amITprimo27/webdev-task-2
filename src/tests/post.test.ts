@@ -104,7 +104,7 @@ describe("Posts API", () => {
       .put("/post/" + postsData[0]._id)
       .send(postsData[0]);
     expect(response.statusCode).toBe(200);
-    expect(response.body.content).toBe(postsData[0].content.toString());
+    expect(response.body.content).toBe(postsData[0].content);
     expect(response.body.sender).toBe(postsData[0].sender.toString());
   });
 

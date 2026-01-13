@@ -176,4 +176,19 @@ describe("Comment API Tests", () => {
     expect(list.status).toBe(200);
     expect(list.body.length).toBe(testComments.length - 1);
   });
+
+  test("update comment (non-existing)", async () => {
+    const id = new mongoose.Types.ObjectId();
+    const res = await request(app)
+      .put(`/comment/${id}`)
+      .send({ content: "No such comment" });
+    // current implementation returns 200 with a falsy body when not found
+    expect(res.status).toBe(404);
+  });
+
+  test("delete comment (non-existing)", async () => {
+    const id = new mongoose.Types.ObjectId();
+    const res = await request(app).delete(`/comment/${id}`);
+    expect(res.status).toBe(404);
+  });
 });

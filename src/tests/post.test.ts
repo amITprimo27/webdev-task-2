@@ -3,8 +3,9 @@ import postModel from "../models/postModel";
 import userModel from "../models/userModel";
 import { Express } from "express";
 import mongoose from "mongoose";
-import { Post } from "./testUtils";
+import { Post, secondUserData } from "./testUtils";
 import request from "supertest";
+import { userData, registerTestUsers } from "./testUtils";
 let app: Express;
 let testUserOne: { _id: mongoose.Types.ObjectId; email: string };
 let testUserTwo: { _id: mongoose.Types.ObjectId; email: string };
@@ -29,20 +30,7 @@ beforeAll(async () => {
   // clean collections
   await postModel.deleteMany({});
   await userModel.deleteMany({});
-
-  testUserOne = await userModel.create({
-    email: "testone@example.com",
-    password: "password123",
-  });
-
-  testUserTwo = await userModel.create({
-    email: "testtwo@example.com",
-    password: "password321",
-  });
-
-  postsData[0].sender = testUserOne._id;
-  postsData[1].sender = testUserTwo._id;
-  postsData[2].sender = testUserTwo._id;
+  await registerTestUsers(app);
 });
 
 afterAll(async () => {
@@ -58,10 +46,25 @@ describe("Posts API", () => {
   });
 
   test("create posts", async () => {
-    for (const post of postsData) {
-      const response = await request(app).post("/post").send(post);
+    for (const post of [postsData[0]]) {
+      const response = await request(app)
+        .post("/post")
+        .set("Authorization", "Bearer " + userData.token)
+        .send(post);
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty("_id");
+      post.sender = response.body.sender;
+      post._id = response.body._id;
+    }
+
+    for (const post of [postsData[1], postsData[2]]) {
+      const response = await request(app)
+        .post("/post")
+        .set("Authorization", "Bearer " + secondUserData.token)
+        .send(post);
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty("_id");
+      post.sender = response.body.sender;
       post._id = response.body._id;
     }
   });
@@ -102,6 +105,7 @@ describe("Posts API", () => {
     postsData[0].content = "Updated content";
     const response = await request(app)
       .put("/post/" + postsData[0]._id)
+      .set("Authorization", "Bearer " + userData.token)
       .send(postsData[0]);
     expect(response.statusCode).toBe(200);
     expect(response.body.content).toBe(postsData[0].content);
@@ -119,11 +123,10 @@ describe("Posts API", () => {
     const invalidId = new mongoose.Types.ObjectId();
     const response = await request(app)
       .put("/post/" + invalidId)
+      .set("Authorization", "Bearer " + userData.token)
       .send({
         content: "Updated content",
-        sender: testUserOne._id,
       });
     expect(response.statusCode).toBe(404);
   });
-
 });

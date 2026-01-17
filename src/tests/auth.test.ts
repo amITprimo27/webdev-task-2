@@ -11,6 +11,7 @@ const postData: Post & { _id?: mongoose.Types.ObjectId } = {
   sender: new mongoose.Types.ObjectId(),
   content: "I love programming",
 };
+
 let app: Express;
 beforeAll(async () => {
   app = await intApp();

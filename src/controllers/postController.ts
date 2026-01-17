@@ -8,28 +8,32 @@ class PostController extends BaseController<Post> {
     super(postModel);
   }
   async post(req: AuthRequest, res: Response) {
-    const userId = (req as any).user?._id;
+    const userId = req.user?._id;
     req.body.sender = userId;
     return super.post(req, res);
   }
 
   async put(req: AuthRequest, res: Response) {
-    const userId = (req as any).user?._id;
+    const userId = req.user?._id;
     const post = await postModel.findById(req.params.id);
+
     if (post && post?.sender.toString() !== userId) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
+
     return super.put(req, res);
   }
 
   async del(req: AuthRequest, res: Response) {
-    const userId = (req as any).user?._id;
+    const userId = req.user?._id;
     const post = await postModel.findById(req.params.id);
+
     if (post && post?.sender.toString() !== userId) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
+
     return super.del(req, res);
   }
 }

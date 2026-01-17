@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { AuthUtils } from "../utils/authUtils";
 
 export type AuthRequest = Request & { user?: { _id: string } };
 
@@ -8,17 +8,15 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  // Authentication logic here
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  const token = AuthUtils.extractTokenFromHeader(authHeader);
+
+  if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const token = authHeader.split(" ")[1];
-  const secret: string = process.env.JWT_SECRET || "secretkey";
-
   try {
-    const decoded = jwt.verify(token, secret) as { userId: string };
+    const decoded = AuthUtils.verifyToken(token);
     req.user = { _id: decoded.userId };
     next();
   } catch (error) {

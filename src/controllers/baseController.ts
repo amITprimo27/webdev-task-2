@@ -7,13 +7,8 @@ export class BaseController<T> {
   async get(req: Request, res: Response) {
     const filter = req.query;
     try {
-      if (filter) {
-        const data = await this.model.find(filter);
-        res.json(data);
-      } else {
-        const data = await this.model.find();
-        res.json(data);
-      }
+      const data = await this.model.find(filter);
+      res.json(data);
     } catch (error) {
       res.status(500).json({
         error:

@@ -20,6 +20,7 @@ const intApp = () => {
     app.use("/comment", commentRouter);
     app.use("/auth", authRouter);
     const dbUri = process.env.MONGODB_URI;
+
     if (!dbUri) {
       console.error("MONGODB_URI is not defined in the environment variables.");
       reject(new Error("MONGODB_URI is not defined"));
@@ -28,10 +29,12 @@ const intApp = () => {
         resolve(app);
       });
     }
+
     const db = mongoose.connection;
     db.on("error", (error) => {
       console.error(error);
     });
+
     db.once("open", () => {
       console.log("Connected to MongoDB");
     });

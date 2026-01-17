@@ -1,41 +1,20 @@
 import { Request, Response } from "express";
 import { userModel } from "../models/userModel";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-
-type Tokens = {
-  token: string;
-  refreshToken: string;
-};
+import { AuthUtils } from "../utils/authUtils";
 
 class AuthController {
-  private _sendError(res: Response, message: string, code?: number) {
-    const errCode = code || 400;
-    res.status(errCode).json({ error: message });
-  }
-
-  private _generateToken(userId: string): Tokens {
-    const secret: string = process.env.JWT_SECRET || "secretkey";
-    const exp: number = parseInt(process.env.JWT_EXPIRES_IN || "3600"); // 1 hour
-    const refreshexp: number = parseInt(
-      process.env.JWT_REFRESH_EXPIRES_IN || "86400"
-    ); // 24 hours
-    const token = jwt.sign({ userId: userId }, secret, { expiresIn: exp });
-    const refreshToken = jwt.sign(
-      { userId: userId },
-      secret,
-      { expiresIn: refreshexp } // 24 hours
-    );
-    return { token, refreshToken };
+  private _sendError(res: Response, message: string, code: number = 400) {
+    res.status(code).json({ error: message });
   }
 
   async register(req: Request, res: Response) {
-    // Registration logic here
     const { email, password } = req.body;
 
     if (!email || !password) {
       return this._sendError(res, "Email and password are required", 401);
     }
+
     try {
       const salt = await bcrypt.genSalt(10);
       const encryptedPassword = await bcrypt.hash(password, salt);
@@ -45,7 +24,7 @@ class AuthController {
       });
 
       //generate JWT token
-      const tokens = this._generateToken(user._id.toString());
+      const tokens = AuthUtils.generateTokens({ userId: user._id.toString() });
 
       user.refreshToken.push(tokens.refreshToken);
       await user.save();
@@ -58,7 +37,6 @@ class AuthController {
   }
 
   async login(req: Request, res: Response) {
-    // Login logic here
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -76,8 +54,7 @@ class AuthController {
         return this._sendError(res, "Invalid email or password");
       }
 
-      //generate JWT token
-      const tokens = this._generateToken(user._id.toString());
+      const tokens = AuthUtils.generateTokens({ userId: user._id.toString() });
 
       user.refreshToken.push(tokens.refreshToken);
       await user.save();
@@ -97,8 +74,7 @@ class AuthController {
     }
 
     try {
-      const secret: string = process.env.JWT_SECRET || "secretkey";
-      const decoded: any = jwt.verify(refreshToken, secret);
+      const decoded = AuthUtils.verifyToken(refreshToken);
 
       const user = await userModel.findById(decoded.userId);
       if (!user) {
@@ -113,7 +89,7 @@ class AuthController {
       }
 
       //generate new tokens
-      const tokens = this._generateToken(user._id.toString());
+      const tokens = AuthUtils.generateTokens({ userId: user._id.toString() });
       user.refreshToken.push(tokens.refreshToken);
       //remove old refresh token
       user.refreshToken = user.refreshToken.filter((rt) => rt !== refreshToken);

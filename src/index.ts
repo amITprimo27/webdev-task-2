@@ -7,6 +7,7 @@ import specs from "./swagger";
 import postsRoutes from "./routes/postRoutes"
 import commentRoutes from "./routes/commentRouts";
 dotenv.config({ path: "/env/.env.dev" });
+import authRoutes from "./routes/authRoutes"; 
 
 const intApp = () => {
   const promise = new Promise<Express>((resolve, reject) => {
@@ -18,6 +19,7 @@ const intApp = () => {
     // Routes
     app.use("/post", postsRoutes);
     app.use("/comment", commentRoutes);
+    app.use("/auth", authRoutes);
     const dbUri = process.env.MONGODB_URI;
     if (!dbUri) {
       console.error("MONGODB_URI is not defined in the environment variables.");

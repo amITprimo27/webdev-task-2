@@ -4,12 +4,11 @@ import userModel from "../models/userModel";
 import { Express } from "express";
 import postModel from "../models/postModel";
 import mongoose from "mongoose";
-import { Comment, Post } from "./testUtils";
+import { Comment, Post, userData, registerTestUsers } from "./testUtils";
 import request from "supertest";
 let app: Express;
 let testPost1: Post & { _id: mongoose.Types.ObjectId };
 let testPost2: Post & { _id: mongoose.Types.ObjectId };
-let testUser: { _id: mongoose.Types.ObjectId; email: string };
 
 const testComments: (Comment & { _id?: mongoose.Types.ObjectId })[] = [
   {
@@ -35,28 +34,38 @@ beforeAll(async () => {
   await commentModel.deleteMany({});
   await postModel.deleteMany({});
   await userModel.deleteMany({});
+  await registerTestUsers(app);
 
-  testUser = await userModel.create({
-    email: "test@example.com",
-    password: "password123",
-  });
+  testPost1 = (
+    await request(app)
+      .post("/post")
+      .set("Authorization", "Bearer " + userData.token)
+      .send({
+        content: "This is a test post.",
+      })
+  ).body;
+  console.log("Created testPost1:", testPost1);
 
-  testPost1 = await postModel.create({
-    content: "This is a test post.",
-    sender: testUser._id,
-  });
+  testPost2 = (
+    await request(app)
+      .post("/post")
+      .set("Authorization", "Bearer " + userData.token)
+      .send({
+        content: "This is a second test post.",
+      })
+  ).body;
 
-  testPost2 = await postModel.create({
-    content: "This is another test post.",
-    sender: testUser._id,
-  });
+  testPost1._id = new mongoose.Types.ObjectId(testPost1._id);
+  testPost2._id = new mongoose.Types.ObjectId(testPost2._id);
 
   // wire test comments to the created posts and user
   testComments[0].postId = testPost1._id;
   testComments[1].postId = testPost1._id;
   testComments[2].postId = testPost2._id;
 
-  testComments.forEach((comment) => (comment.sender = testUser._id));
+  testComments.forEach(
+    (comment) => (comment.sender = new mongoose.Types.ObjectId(userData._id))
+  );
 });
 
 afterAll(async () => {
@@ -73,10 +82,14 @@ describe("Comment API Tests", () => {
 
   test("create comments", async () => {
     for (const comment of testComments) {
-      const response = await request(app).post("/comment").send(comment);
+      const response = await request(app)
+        .post("/comment")
+        .set("Authorization", "Bearer " + userData.token)
+        .send(comment);
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty("_id");
       comment._id = response.body._id;
+      comment.sender = response.body.sender;
       expect(response.body.content).toEqual(comment.content);
     }
   });
@@ -105,6 +118,7 @@ describe("Comment API Tests", () => {
       .get("/comment")
       .query({ postId: testPost1._id.toString() });
     expect(response.status).toBe(200);
+    console.log(typeof testComments[0].postId, testComments[0].postId);
 
     const expectedComments = testComments.filter((comment) =>
       comment.postId.equals(testPost1._id)
@@ -152,6 +166,7 @@ describe("Comment API Tests", () => {
     const newContent = { content: "Updated content" };
     const res = await request(app)
       .put(`/comment/${target._id}`)
+      .set("Authorization", "Bearer " + userData.token)
       .send(newContent);
     expect(res.status).toBe(200);
     expect(res.body.content).toBe(newContent.content);
@@ -164,7 +179,9 @@ describe("Comment API Tests", () => {
 
   test("delete comment", async () => {
     const target = testComments[2];
-    const res = await request(app).delete(`/comment/${target._id}`);
+    const res = await request(app)
+      .delete(`/comment/${target._id}`)
+      .set("Authorization", "Bearer " + userData.token);
     expect(res.status).toBe(200);
 
     // ensure it's gone
@@ -181,6 +198,7 @@ describe("Comment API Tests", () => {
     const id = new mongoose.Types.ObjectId();
     const res = await request(app)
       .put(`/comment/${id}`)
+      .set("Authorization", "Bearer " + userData.token)
       .send({ content: "No such comment" });
     // current implementation returns 200 with a falsy body when not found
     expect(res.status).toBe(404);
@@ -188,7 +206,9 @@ describe("Comment API Tests", () => {
 
   test("delete comment (non-existing)", async () => {
     const id = new mongoose.Types.ObjectId();
-    const res = await request(app).delete(`/comment/${id}`);
+    const res = await request(app)
+      .delete(`/comment/${id}`)
+      .set("Authorization", "Bearer " + userData.token);
     expect(res.status).toBe(404);
   });
 });

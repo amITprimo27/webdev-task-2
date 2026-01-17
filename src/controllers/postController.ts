@@ -1,8 +1,7 @@
-import postModel from "../models/postModel";
+import { Post, postModel } from "../models/postModel";
 import { AuthRequest } from "../middleware/authMiddleware";
-import BaseController from "./baseController";
-import { Request, Response } from "express";
-import { Post } from "../tests/testUtils";
+import { Response } from "express";
+import { BaseController } from "./baseController";
 
 class PostController extends BaseController<Post> {
   constructor() {
@@ -35,4 +34,4 @@ class PostController extends BaseController<Post> {
   }
 }
 
-export default new PostController();
+export const postController = new PostController();

@@ -1,13 +1,13 @@
-import commentModel from "../models/commentModel";
 import { AuthRequest } from "../middleware/authMiddleware";
-import BaseController from "./baseController";
-import { Comment } from "../tests/testUtils";
-import { Request, Response } from "express";
+import { Response } from "express";
+import { BaseController } from "./baseController";
+import { Comment, commentModel } from "../models/commentModel";
 
 class CommentController extends BaseController<Comment> {
   constructor() {
     super(commentModel);
   }
+
   async post(req: AuthRequest, res: Response) {
     const userId = (req as any).user?._id;
     req.body.sender = userId;
@@ -37,4 +37,4 @@ class CommentController extends BaseController<Comment> {
   }
 }
 
-export default new CommentController();
+export const commentController = new CommentController();

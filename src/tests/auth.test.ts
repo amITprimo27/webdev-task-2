@@ -1,10 +1,10 @@
 import request from "supertest";
 import intApp from "../index";
 import { Express } from "express";
-import commentModel from "../models/commentModel";
-import userModel from "../models/userModel";
-import postModel from "../models/postModel";
-import { userData, Post } from "./testUtils";
+import { commentModel } from "../models/commentModel";
+import { userModel } from "../models/userModel";
+import { postModel, Post } from "../models/postModel";
+import { userData } from "./testUtils";
 import mongoose from "mongoose";
 
 const postData: Post & { _id?: mongoose.Types.ObjectId } = {
@@ -118,7 +118,6 @@ describe("Auth API", () => {
       .post("/post")
       .set("Authorization", "Bearer " + userData.token)
       .send(postData);
-    console.log(newAccessResponse.body);
     expect(newAccessResponse.statusCode).toBe(201);
     expect(newAccessResponse.body).toHaveProperty("_id");
   });

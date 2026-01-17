@@ -1,13 +1,12 @@
 import express, { Express } from "express";
-const app = express();
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import swaggerUi from "swagger-ui-express";
-import specs from "./swagger";
-import postsRoutes from "./routes/postRoutes"
-import commentRoutes from "./routes/commentRouts";
+import { postsRouter } from "./routes/postRoutes";
+import { commentRouter } from "./routes/commentRouts";
+import { authRouter } from "./routes/authRoutes";
+const app = express();
+
 dotenv.config({ path: "/env/.env.dev" });
-import authRoutes from "./routes/authRoutes"; 
 
 const intApp = () => {
   const promise = new Promise<Express>((resolve, reject) => {
@@ -17,9 +16,9 @@ const intApp = () => {
     // TODO: Swagger
 
     // Routes
-    app.use("/post", postsRoutes);
-    app.use("/comment", commentRoutes);
-    app.use("/auth", authRoutes);
+    app.use("/post", postsRouter);
+    app.use("/comment", commentRouter);
+    app.use("/auth", authRouter);
     const dbUri = process.env.MONGODB_URI;
     if (!dbUri) {
       console.error("MONGODB_URI is not defined in the environment variables.");

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
-class BaseController<T> {
+export class BaseController<T> {
   constructor(protected model: mongoose.Model<T>) {}
 
   async get(req: Request, res: Response) {
@@ -89,4 +89,3 @@ class BaseController<T> {
     }
   }
 }
-export default BaseController;

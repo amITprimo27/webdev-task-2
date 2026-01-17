@@ -12,4 +12,5 @@ const postSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("post", postSchema);
+export const postModel = mongoose.model("post", postSchema);
+export type Post = mongoose.InferSchemaType<typeof postSchema>;

@@ -1,13 +1,6 @@
 import { Express } from "express";
-import mongoose from "mongoose";
-import postModel from "../models/postModel";
-import commentModel from "../models/commentModel";
 import request from "supertest";
-import User from "../models/userModel";
-
-type TypeFromModel<T> = T extends mongoose.Model<infer U> ? U : never;
-export type Post = TypeFromModel<typeof postModel>;
-export type Comment = TypeFromModel<typeof commentModel>;
+import { userModel } from "../models/userModel";
 
 type UserData = {
   email: string;
@@ -26,8 +19,8 @@ export const secondUserData: UserData = {
 };
 
 export const registerTestUsers = async (app: Express) => {
-  await User.deleteMany({ email: userData.email });
-  await User.deleteMany({ email: secondUserData.email });
+  await userModel.deleteMany({ email: userData.email });
+  await userModel.deleteMany({ email: secondUserData.email });
   for (const user of [userData, secondUserData]) {
     const res = await request(app).post("/auth/register").send({
       email: user.email,

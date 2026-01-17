@@ -1,6 +1,8 @@
 import express, { Express } from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import specs from "./swagger";
 import { postsRouter } from "./routes/postRoutes";
 import { commentRouter } from "./routes/commentRouts";
 import { authRouter } from "./routes/authRoutes";
@@ -13,7 +15,23 @@ const intApp = () => {
     app.use(express.urlencoded({ extended: false }));
     app.use(express.json());
 
-    // TODO: Swagger
+    // Swagger UI
+    // Swagger Documentation
+    app.use(
+      "/api-docs",
+      swaggerUi.serve,
+      swaggerUi.setup(specs, {
+        explorer: true,
+        customCss: ".swagger-ui .topbar { display: none }",
+        customSiteTitle: "Movie & Comments API Documentation",
+      })
+    );
+
+    // Swagger JSON endpoint
+    app.get("/api-docs.json", (req, res) => {
+      res.setHeader("Content-Type", "application/json");
+      res.send(specs);
+    });
 
     // Routes
     app.use("/post", postsRouter);

@@ -1,9 +1,9 @@
 import intApp from "../index";
-import postModel from "../models/postModel";
-import userModel from "../models/userModel";
+import { Post, postModel } from "../models/postModel";
+import { userModel } from "../models/userModel";
 import { Express } from "express";
 import mongoose from "mongoose";
-import { Post, secondUserData } from "./testUtils";
+import { secondUserData } from "./testUtils";
 import request from "supertest";
 import { userData, registerTestUsers } from "./testUtils";
 let app: Express;

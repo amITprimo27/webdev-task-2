@@ -1,4 +1,3 @@
-import e from "express";
 import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
@@ -18,4 +17,5 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("comment", commentSchema);
+export const commentModel = mongoose.model("comment", commentSchema);
+export type Comment = mongoose.InferSchemaType<typeof commentSchema>;

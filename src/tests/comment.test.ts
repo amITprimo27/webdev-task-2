@@ -1,11 +1,12 @@
 import intApp from "../index";
-import commentModel from "../models/commentModel";
-import userModel from "../models/userModel";
+import { Comment, commentModel } from "../models/commentModel";
+import { userModel } from "../models/userModel";
 import { Express } from "express";
-import postModel from "../models/postModel";
+import { Post, postModel } from "../models/postModel";
 import mongoose from "mongoose";
-import { Comment, Post, userData, registerTestUsers } from "./testUtils";
+import { userData, registerTestUsers } from "./testUtils";
 import request from "supertest";
+
 let app: Express;
 let testPost1: Post & { _id: mongoose.Types.ObjectId };
 let testPost2: Post & { _id: mongoose.Types.ObjectId };
@@ -44,7 +45,6 @@ beforeAll(async () => {
         content: "This is a test post.",
       })
   ).body;
-  console.log("Created testPost1:", testPost1);
 
   testPost2 = (
     await request(app)
@@ -118,7 +118,6 @@ describe("Comment API Tests", () => {
       .get("/comment")
       .query({ postId: testPost1._id.toString() });
     expect(response.status).toBe(200);
-    console.log(typeof testComments[0].postId, testComments[0].postId);
 
     const expectedComments = testComments.filter((comment) =>
       comment.postId.equals(testPost1._id)
